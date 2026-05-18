@@ -1,3 +1,40 @@
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-analytics.js";
+import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
+import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+emailjs.init("0qb2iG5MF1xzB9vxy"); // public key
+const firebaseConfig = {
+
+    apiKey: "AIzaSyBK_mppJk1xlVq0yLbh6tRx0mNNvIDA4yY",
+
+    authDomain: "invitation-wedding-18601.firebaseapp.com",
+
+    projectId: "invitation-wedding-18601",
+
+    storageBucket: "invitation-wedding-18601.firebasestorage.app",
+
+    messagingSenderId: "210302966679",
+
+    appId: "1:210302966679:web:e0c25767bc77cf2a4f42d2",
+
+    measurementId: "G-0Z7SMSJXN7"
+
+};
+
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+
+// Firebase Auth
+const auth = getAuth(app);
+
+// Firestore
+const db = getFirestore(app);
+
+
+// Login anonymous
+// await signInAnonymously(auth);
+
 (function () {
     'use strict';
     var isMobile = {
@@ -279,35 +316,6 @@
             }
             //seconds
         }, 0)
-    // IDs for the bride and groom
-    const brideId = '100010193289535'; // Replace with actual bride's Facebook ID
-    const groomId = '100009013866445'; // Replace with actual groom's Facebook ID
-
-    // Detect the user's device
-    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-
-    if (/android/i.test(userAgent)) {
-        // Android
-        document.getElementById('facebook-bride').href = `fb://facewebmodal/f?href=https://www.facebook.com/${brideId}`;
-        document.getElementById('facebook-groom').href = `fb://facewebmodal/f?href=https://www.facebook.com/${groomId}`;
-        // document.getElementById('messenger-bride').href = `fb-messenger://user/${brideId}`;
-        // document.getElementById('messenger-groom').href = `fb-messenger://user/${groomId}`;
-    } else if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
-        // iOS
-        document.getElementById('facebook-bride').href = `fb://profile/${brideId}`;
-        document.getElementById('facebook-groom').href = `fb://profile/${groomId}`;
-        // document.getElementById('messenger-bride').href = `fb-messenger://user-thread/${brideId}`;
-        // document.getElementById('messenger-groom').href = `fb-messenger://user-thread/${groomId}`;
-        
-    } else {
-        // Laptop or other devices
-        document.getElementById('facebook-bride').href = `https://www.facebook.com/${brideId}`;
-        document.getElementById('facebook-groom').href = `https://www.facebook.com/${groomId}`;
-        // document.getElementById('messenger-bride').href = `https://www.messenger.com/t/${brideId}`;
-        // document.getElementById('messenger-groom').href = `https://www.messenger.com/t/${groomId}`;
-        
-
-    }
 }());
 
 function copySTK(index) {
@@ -345,55 +353,103 @@ function downloadQR(index) {
 }
 window.googleDocCallback = function () { return true; };
 
-document.getElementById('contactForm').addEventListener('submit', function (e) {
+document.getElementById('contactForm').addEventListener('submit', async function (e) {
+
+    e.preventDefault();
 
     let isValid = true;
+
     const nameField = $('input[name="name"]');
+
+    // Validate tên
     if (nameField.val().trim() === '') {
+
         nameField.next('.error-message').show();
+
         isValid = false;
+
     } else {
+
         nameField.next('.error-message').hide();
+
     }
 
-    if (isValid) {
-        const formData = $(this).serializeArray();
-        const formObject = {};
-        $.each(formData, function (_, field) {
-            formObject[field.name] = field.value;
-        });
-        e.preventDefault();
-        var contact__msg = $('.contact__msg');
-        contact__msg.show();
-        contact__msg.html('Đang gửi...');
-        contact__msg.removeClass('alert-success');
-        contact__msg.addClass('alert-warning');
-        formData.forEach((value, key) => formObject[key] = value);
-        $.ajax({
-            url: 'https://script.google.com/macros/s/AKfycbyRTPAO58gux_MC-13VKUny8Axh2vFQuKOIG-9pDeM44UTXQjQJ3AGw48yH6zJYYoKAgg/exec',  // Replace with your Web App URL
-            method: 'POST',
-            crossDomain: true,
-            data: JSON.stringify(formObject),
-            contentType: 'text/plain;charset=utf-8',
-            success: function (data) {
-                if (data.result === 'success') {
-                    $('.contact__msg').show();
-                    contact__msg.addClass('alert-success');
-                    contact__msg.removeClass('alert-warning');
-                    $('.contact__msg').html('Đã xác nhận tham dự thành công');
-                    setTimeout(() => {
-                        $('.contact__msg').hide();
-                        $('#contactForm')[0].reset();
+    if (!isValid) return;
 
-                    }, 5000)
-                } else {
-                    alert('Error submitting form');
-                }
-            },
-            error: function (error) {
-                console.error('Error:', error);
-            }
+    // Serialize form
+    const formData = $(this).serializeArray();
+
+    const formObject = {};
+
+    $.each(formData, function (_, field) {
+
+        formObject[field.name] = field.value;
+
+    });
+
+    const contact__msg = $('.contact__msg');
+
+    try {
+
+        // Loading
+        contact__msg.show();
+
+        contact__msg
+            .removeClass('alert-success alert-danger')
+            .addClass('alert-warning')
+            .html('Đang gửi...');
+
+        // Login anonymous nếu chưa login
+        if (!auth.currentUser) {
+
+            await signInAnonymously(auth);
+
+        }
+
+        // Save Firestore
+        await addDoc(collection(db, 'rsvp_confirm'), {
+
+            ...formObject,
+
+            createdAt: serverTimestamp()
+
         });
+
+        // Gửi mail EmailJS
+        await emailjs.send(
+            'service_obvwdzp', // service id
+            'template_l4a9y3q', // service template id
+            {
+                name: formObject.name || '',
+                passenger: formObject.passenger || '',
+                relationship: formObject.relationship || '',
+                choice: formObject.choice || ''
+            }
+        );
+
+        // Success
+        contact__msg
+            .removeClass('alert-warning')
+            .addClass('alert-success')
+            .html('Đã xác nhận tham dự thành công');
+
+        // Reset form
+        $('#contactForm')[0].reset();
+
+        setTimeout(() => {
+
+            contact__msg.hide();
+
+        }, 5000);
+
+    } catch (error) {
+
+        console.error('Error:', error);
+
+        contact__msg
+            .removeClass('alert-warning')
+            .addClass('alert-danger')
+            .html('Có lỗi xảy ra');
 
     }
 

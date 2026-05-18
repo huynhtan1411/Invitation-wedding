@@ -11,13 +11,13 @@ import { getFirestore, collection, addDoc, getDocs, query, orderBy } from "https
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-    apiKey: "AIzaSyDew6xcMmLPT4-yl02jCA3WRFnHaIRvl7s",
-    authDomain: "wishing-wedding-bao-thanh.firebaseapp.com",
-    projectId: "wishing-wedding-bao-thanh",
-    storageBucket: "wishing-wedding-bao-thanh.appspot.com",
-    messagingSenderId: "963145263560",
-    appId: "1:963145263560:web:ce0ca128831fb44329f8fd",
-    measurementId: "G-TRYGKX2LBM"
+  apiKey: "AIzaSyBK_mppJk1xlVq0yLbh6tRx0mNNvIDA4yY",
+  authDomain: "invitation-wedding-18601.firebaseapp.com",
+  projectId: "invitation-wedding-18601",
+  storageBucket: "invitation-wedding-18601.firebasestorage.app",
+  messagingSenderId: "210302966679",
+  appId: "1:210302966679:web:e0c25767bc77cf2a4f42d2",
+  measurementId: "G-0Z7SMSJXN7"
 };
 
 // Initialize Firebase
@@ -43,19 +43,19 @@ $(document).ready(function () {
 
         let isValid = true;
         const nameField = $('input[name="nameWishing"]');
-        const messageWishingField = $('textarea[name="messageWishing"]');
-        const suggestionField = $('select[name="suggestion"]');
-        if (!messageWishingField.val() && !suggestionField.val()) {
-            messageWishingField.next('.error-message').show();
-            messageWishingField.addClass('mb-0');
-            isValid = false;
-        }
-        else {
-            messageWishingField.next('.error-message').hide();
-            messageWishingField.removeClass('mb-0');
+        // const messageWishingField = $('textarea[name="messageWishing"]');
+        // const suggestionField = $('select[name="suggestion"]');
+        // if (!messageWishingField.val() && !suggestionField.val()) {
+        //     messageWishingField.next('.error-message').show();
+        //     messageWishingField.addClass('mb-0');
+        //     isValid = false;
+        // }
+        // else {
+        //     messageWishingField.next('.error-message').hide();
+        //     messageWishingField.removeClass('mb-0');
 
 
-        }
+        // }
         if (nameField.val().trim() === '') {
             nameField.next('.error-message').show();
             isValid = false;

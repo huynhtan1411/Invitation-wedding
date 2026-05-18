@@ -164,6 +164,13 @@ textarea {
     font-family: 'Nunito Sans', sans-serif;
 }
 
+.top-text {
+    position: relative;
+    margin-top: -120px;
+    z-index: 9999;
+    font-size: 72px;
+}
+
 input[type="password"]:focus,
 input[type="email"]:focus,
 input[type="text"]:focus,
