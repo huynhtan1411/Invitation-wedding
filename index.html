@@ -506,6 +506,7 @@
         <audio id="backgroundMusic" autoplay muted loop>
             <source src="I-do.mp3" type="audio/mpeg">
         </audio>
+
         <script>
 
             const music = document.getElementById('backgroundMusic');
@@ -522,6 +523,7 @@
 
                 try {
 
+                    music.muted = true;
                     await music.play();
 
                     controlMusic.style.display = 'none';
@@ -545,15 +547,17 @@
             // Khi load web
             window.addEventListener('load', autoPlayMusic);
 
-            // Nếu browser chặn autoplay
             document.addEventListener('click', async function firstClick() {
 
                 try {
 
-                    // Bỏ mute sau tương tác đầu tiên
+                    // Unmute
                     music.muted = false;
 
-                    // Play nhạc
+                    // Reset audio để browser cho phát tiếng
+                    music.currentTime = music.currentTime;
+
+                    // Force play lại
                     await music.play();
 
                     // Update icon
@@ -561,7 +565,7 @@
 
                     playPauseButton.classList.add('ti-control-pause');
 
-                    // Hiện player Spotify style
+                    // Show spotify player
                     controlMusic.style.display = 'none';
 
                     spotfiyMusicControl.style.display = 'flex';
@@ -574,7 +578,7 @@
 
                 }
 
-                // Chỉ chạy 1 lần
+                // Remove listener
                 document.removeEventListener('click', firstClick);
 
             });
